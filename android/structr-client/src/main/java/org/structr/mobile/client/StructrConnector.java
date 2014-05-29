@@ -57,21 +57,41 @@ public class StructrConnector {
         }
 
         if(extrC != null) {
-            StructrGetQuery sc = new StructrGetQuery(extrC, query);
+            StructrGetQuery sgq = new StructrGetQuery(extrC, query);
 
-            return sc;
+            return sgq;
         }
 
         return null;
     }
 
     /**
-     * Not yet Supported
-     * @param object
-     * @return
+     * Connects to the structr server and writes new data. Choose between asynchron or synchron
+     * request.
+     * Returns the new Object and server generated id
+     * 
+     * @param object to send to the server
+     * @return StructrWriteQuery Object
      */
     public static StructrWriteQuery write(Object object) {
-        throw new UnsupportedOperationException("Not yet Supported");
+
+        //TODO when object id is not null: update old data
+
+        ExtractedClass extrC = null;
+
+        try{
+            extrC = EntityRegister.read(object.getClass());
+        }catch(NullPointerException ex){
+            ex.printStackTrace();
+        }
+
+        if(extrC != null){
+            StructrWriteQuery swq = new StructrWriteQuery(extrC, object);
+
+            return swq;
+        }
+
+        return null;
     }
 
     /**

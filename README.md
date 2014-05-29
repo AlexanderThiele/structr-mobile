@@ -10,7 +10,7 @@ Generate your data schema in the UI and connect your mobile Application immediat
 * Query and use your data
 
 ##Step-by-Step
-Note: these steps do not show how to use structr or how to create the schema. This example based on Android.
+Note: these steps do not show how to use structr or how to create the schema. This example is based on Android.
 
 ###Generate your data schema with Structr
 
@@ -81,14 +81,21 @@ You don't want to query all whiskies everytime. So lets query for a Whisky with 
 
 You can add as many parameters as you want (seperated with ',').
 
+###Write your Data
+Create your local object and write it to the server.
+    
+    Whisky whisky = new Whisky();
+    whisky.name = "Lagavulin";
+    StructrConnector.write(whisky).executeAsync(asyncListener);
+
+The asyncListener is called with the final written object (with server generated id).
+    
 --------------
 
 #Whats next?
-* Improved get query
-* Put query
-* Post query
-* Delete query
+* Improve querys (Get, Post, Put, Delete)
 * Object-id Mapping
+* Server status ping
 
 ##To be implemented
 * Security
@@ -100,5 +107,6 @@ You can add as many parameters as you want (seperated with ',').
 
 ------------
 
-###Copyright 
+###Copyright and license
 * Copyright 2014 Alexander Thiele
+* This product is licensed under GPLv3

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Created by alex on 16.05.14.
  */
-public class GetTask extends AsyncTask<String, Void, String> {
+public class GetTask extends BaseTask {
 
     private final String TAG = "GetTask";
 
@@ -64,11 +64,7 @@ public class GetTask extends AsyncTask<String, Void, String> {
         HttpResponse response;
         String responseString = null;
 
-        String uri = this.baseUri
-                + Constants.getRestUri()
-                + "/"
-                + extrC.getClazzName()
-                + queryString;
+        String uri = buildBaseUri(baseUri, extrC);
 
         try {
             response = httpclient.execute(new HttpGet(uri));

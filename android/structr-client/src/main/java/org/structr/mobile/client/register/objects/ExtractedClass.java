@@ -144,19 +144,36 @@ public class ExtractedClass implements Cloneable{
         return null;
     }
 
+
     public String getClazzName(){
         return this.clazz.getSimpleName();
     }
 
-    public JSONObject getJson(){
-        if(dataObject == null){
-            return new JSONObject();
+
+    public JSONObject getJson(Object object){
+        Object data = object;
+
+        //use this.dataObject if object is null
+        if(data == null){
+            if(this.dataObject == null) {
+                return new JSONObject();
+            }
+            data = this.dataObject;
+        }else{
+            if(!object.getClass().getName().equals(this.name)){
+                throw new ClassCastException("Classes not match");
+            }
         }
+
         JSONObject jsonObject = new JSONObject();
         for(int i=0; i<fieldNames.length; i++){
             try {
+                Object tmpData = fields[i].get(data);
 
-                jsonObject.put(fieldNames[i], fields[i].get(dataObject).toString());
+                if(tmpData != null && tmpData instanceof String){
+                    jsonObject.put(fieldNames[i], fields[i].get(data).toString());
+                }
+                //TODO: add more types and handle Object reference
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -166,6 +183,7 @@ public class ExtractedClass implements Cloneable{
         }
         return jsonObject;
     }
+
 
     public Object buildObjectFromJson(JSONObject jsonObject){
 

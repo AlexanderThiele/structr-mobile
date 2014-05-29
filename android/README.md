@@ -17,6 +17,7 @@
 Released on 28 May 2014 
 
 * Get query implemented
+* Post query implemented
 * Class-object mapping
 * Class extractor
 * Generated objects
