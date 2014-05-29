@@ -11,7 +11,7 @@ import java.util.Map;
 public class EntityRegister {
 
     private static Map<String, ExtractedClass> classesMap = new HashMap<String, ExtractedClass>();
-    private static Map<String, ExtractedClass> objectMap = new HashMap<String, ExtractedClass>();
+    //private static Map<String, ExtractedClass> objectMap = new HashMap<String, ExtractedClass>();
 
     public static ExtractedClass registerClass(Class<?> clazz){
 
@@ -41,7 +41,7 @@ public class EntityRegister {
         return null;
     }
 
-    public static ExtractedClass write(Object object){
+    /*public static ExtractedClass write(Object object){
         String objName = object.getClass().getName() + object.toString();
         ExtractedClass extrC = null;
 
@@ -77,23 +77,18 @@ public class EntityRegister {
         }
 
         return null;
-    }
+    }*/
 
-    public static ExtractedClass read(Class<?> clazz){
+    /*public static ExtractedClass read(Class<?> clazz){
 
         ExtractedClass extrC = null;
 
         //if class already registered
         if(classesMap.containsKey(clazz.getName())) {
-            ExtractedClass tmpextrC = classesMap.get(clazz.getName());
-            if (tmpextrC != null) {
-                extrC = tmpextrC.copyObject();
-            } else {
-                throw new NullPointerException("Error: Extracted class is null but should not be null.");
-            }
+            extrC = classesMap.get(clazz.getName());
         }else{
             // if first time with Class
-            extrC = EntityRegister.registerClass(clazz).copyObject();
+            extrC = EntityRegister.registerClass(clazz);
         }
 
         if(extrC == null){
@@ -101,7 +96,7 @@ public class EntityRegister {
         }
 
         return extrC;
-    }
+    }*/
 
     public static ExtractedClass getClass(String name){
         if(classesMap.containsKey(name)){

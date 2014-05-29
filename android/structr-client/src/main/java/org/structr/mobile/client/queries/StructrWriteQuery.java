@@ -7,6 +7,7 @@ import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncWriteListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.PostTask;
+import org.structr.mobile.client.tasks.PutTask;
 
 /**
  * Created by alex.
@@ -15,26 +16,52 @@ public class StructrWriteQuery {
 
     private final String TAG = "StructrWriteQuery";
 
+
+    private WriteActions action = WriteActions.CREATE_NEW;
+
     private ExtractedClass extrC;
     private JSONObject jsonObject;
+    private Object dataObject;
+
 
     public StructrWriteQuery (ExtractedClass extrC, Object obj){
         this.extrC = extrC;
+        this.dataObject = obj;
 
-        jsonObject = extrC.getJson(obj);
+        jsonObject = extrC.getJsonFromObject(obj);
 
         if(jsonObject.length() == 0){
             Log.e(TAG, "Error write Query. JsonObject is empty.");
             throw new NullPointerException("Cannot create Json from Object");
         }
+
+        //if data on server exist
+        if(jsonObject.optString("id").length() > 0){
+
+            action = WriteActions.UPDATE_DATA;
+        }
     }
 
     public void executeAsync(OnAsyncWriteListener asyncWriteListener){
-        PostTask pt = new PostTask(StructrConnector.getUri(), extrC, jsonObject, asyncWriteListener );
-        pt.execute();
+
+        if(action == WriteActions.CREATE_NEW) {
+            PostTask pt = new PostTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncWriteListener);
+            pt.execute();
+
+        }else if(action == WriteActions.UPDATE_DATA){
+
+            PutTask pt = new PutTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncWriteListener);
+            pt.execute();
+        }
     }
 
     public Object executeSync(){
         throw new UnsupportedOperationException();
+    }
+
+    // ENUM
+
+    private enum WriteActions{
+        CREATE_NEW, UPDATE_DATA
     }
 }

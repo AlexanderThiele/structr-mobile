@@ -11,11 +11,20 @@ import org.structr.mobile.client.util.Constants;
  */
 public abstract class BaseTask extends AsyncTask<String, Void, String> {
 
+    protected String contentType = "application/json;charset=UTF-8";
 
-    public String buildBaseUri(Uri baseUri, ExtractedClass extrC){
+    protected Uri baseUri;
+    protected ExtractedClass extrC;
+
+    public BaseTask(Uri baseUri, ExtractedClass extrC){
+        this.baseUri = baseUri;
+        this.extrC = extrC;
+    }
+
+
+    public String getUri(){
 
         String url = "";
-
         url += baseUri
                 + Constants.getRestUri()
                 + "/"

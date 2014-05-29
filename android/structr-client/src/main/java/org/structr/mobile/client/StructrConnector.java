@@ -51,7 +51,7 @@ public class StructrConnector {
         ExtractedClass extrC = null;
 
         try{
-            extrC = EntityRegister.read(clazz);
+            extrC = EntityRegister.registerClass(clazz);
         }catch(NullPointerException ex){
             ex.printStackTrace();
         }
@@ -69,18 +69,16 @@ public class StructrConnector {
      * Connects to the structr server and writes new data. Choose between asynchron or synchron
      * request.
      * Returns the new Object and server generated id
-     * 
+     *
      * @param object to send to the server
      * @return StructrWriteQuery Object
      */
     public static StructrWriteQuery write(Object object) {
 
-        //TODO when object id is not null: update old data
-
         ExtractedClass extrC = null;
 
         try{
-            extrC = EntityRegister.read(object.getClass());
+            extrC = EntityRegister.registerClass(object.getClass());
         }catch(NullPointerException ex){
             ex.printStackTrace();
         }
@@ -99,8 +97,9 @@ public class StructrConnector {
      * @param object
      * @return
      */
-    public static StructrUpdateQuery update(Object object){
-        throw new UnsupportedOperationException("Not yet Supported");
+    public static StructrWriteQuery update(Object object){
+
+        return StructrConnector.write(object);
 
     }
 

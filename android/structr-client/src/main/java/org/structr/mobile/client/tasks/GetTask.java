@@ -29,16 +29,11 @@ public class GetTask extends BaseTask {
 
     private final String TAG = "GetTask";
 
-    private Uri baseUri;
-    private ExtractedClass extrC;
-
     private OnAsyncGetListener asyncGetListener;
 
     public GetTask(Uri baseUri, ExtractedClass extrC, OnAsyncGetListener asyncGetListener){
 
-        this.baseUri = baseUri;
-
-        this.extrC = extrC;
+        super(baseUri, extrC);
         this.asyncGetListener = asyncGetListener;
 
     }
@@ -64,7 +59,7 @@ public class GetTask extends BaseTask {
         HttpResponse response;
         String responseString = null;
 
-        String uri = buildBaseUri(baseUri, extrC);
+        String uri = super.getUri() + queryString;
 
         try {
             response = httpclient.execute(new HttpGet(uri));

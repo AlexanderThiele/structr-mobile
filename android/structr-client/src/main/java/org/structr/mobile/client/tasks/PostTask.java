@@ -32,18 +32,16 @@ public class PostTask extends BaseTask{
 
     private final String TAG = "PostTask";
 
-    private Uri baseUri;
-    private ExtractedClass extrC;
     private JSONObject jsonObject;
+    private Object dataObject;
 
     private OnAsyncWriteListener asyncWriteListener;
 
 
-    public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, OnAsyncWriteListener asyncWriteListener){
-
-        this.baseUri = baseUri;
-        this.extrC = extrC;
+    public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncWriteListener asyncWriteListener){
+        super(baseUri, extrC);
         this.jsonObject = data;
+        this.dataObject = dataObject;
         this.asyncWriteListener = asyncWriteListener;
 
     }
@@ -51,7 +49,7 @@ public class PostTask extends BaseTask{
     @Override
     protected String doInBackground(String... strings) {
 
-        String uri = buildBaseUri(baseUri, extrC);
+        String uri = super.getUri();
 
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri);
@@ -60,11 +58,11 @@ public class PostTask extends BaseTask{
 
         try {
             StringEntity dataEntity = new StringEntity(jsonObject.toString());
-            // TODO dataEntity.setContentType();
+
             httpPost.setEntity(dataEntity);
+            httpPost.addHeader("content-type", super.contentType);
 
             response = httpclient.execute(httpPost);
-
             StatusLine statusLine = response.getStatusLine();
 
             if(statusLine.getStatusCode() == HttpStatus.SC_CREATED){
@@ -77,13 +75,13 @@ public class PostTask extends BaseTask{
                 responseString = id;
 
             }else{
-                //closes the connection
-                response.getEntity().getContent().close();
+                    //closes the connection
+                    response.getEntity().getContent().close();
 
-                asyncWriteListener.onAsyncError(statusLine.getReasonPhrase());
-                Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                    asyncWriteListener.onAsyncError(statusLine.getReasonPhrase());
+                    Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
 
-                return null;
+                    return null;
             }
 
         } catch (UnsupportedEncodingException e) {
@@ -110,9 +108,12 @@ public class PostTask extends BaseTask{
         try {
             jsonObject.put("id", result);
 
-            Object resultObj = extrC.buildObjectFromJson(jsonObject);
+            if(!extrC.setValueToObject("id",dataObject,result)){
+                Log.e(TAG, "ERROR SETTING ID TO OBJECT");
+            }
 
-            asyncWriteListener.onAsyncWriteComplete(resultObj);
+            asyncWriteListener.onAsyncWriteComplete(dataObject);
+
             return;
 
         } catch (JSONException e) {

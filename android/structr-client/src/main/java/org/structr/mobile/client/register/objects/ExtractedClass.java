@@ -27,8 +27,6 @@ public class ExtractedClass implements Cloneable{
     private String[] fieldNames;
     private String[] fieldTypes;
 
-    private Object dataObject;
-
     public ExtractedClass(Class<?> clazz)
             throws IllegalArgumentException, InstantiationException,
             IllegalAccessException, InvocationTargetException, Exception {
@@ -70,51 +68,6 @@ public class ExtractedClass implements Cloneable{
 
     }
 
-    public boolean setDataObject(Object obj){
-        if(!obj.getClass().getName().equals(name)){
-            return false;
-        }
-
-        this.dataObject = obj;
-
-        return true;
-    }
-
-    public boolean setDataObjectValue(String name, Object val) {
-        for(int i=0; i<fieldNames.length; i++){
-            if(dataObject != null && fieldNames[i] != null && fieldNames[i].equals(name)){
-                try {
-                    fields[i].set(dataObject, val);
-                } catch (IllegalArgumentException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalAccessException ex) {
-                    ex.printStackTrace();
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Object getDataObjectValue(String name) {
-        for(int i=0; i<fieldNames.length; i++){
-            if(dataObject != null && fieldNames[i] != null && fieldNames[i].equals(name)){
-
-                try {
-                    return fields[i].get(dataObject);
-
-                } catch (IllegalArgumentException ex) {
-                    ex.printStackTrace();
-                    return null;
-                } catch (IllegalAccessException ex) {
-                    ex.printStackTrace();
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
     @Override
     public boolean equals(Object o) {
         if(o instanceof ExtractedClass){
@@ -127,11 +80,10 @@ public class ExtractedClass implements Cloneable{
     public int hashCode() {
         int hash = 17;
         hash += 31 * hash + this.name.hashCode();
-        hash += 31 * hash + this.dataObject.hashCode();
         return hash;
     }
 
-    public ExtractedClass copyObject(){
+    /*public ExtractedClass copyObject(){
         try {
             ExtractedClass extc = (ExtractedClass) this.clone();
             extc.dataObject = null;
@@ -142,7 +94,7 @@ public class ExtractedClass implements Cloneable{
             ex.printStackTrace();
         }
         return null;
-    }
+    }*/
 
 
     public String getClazzName(){
@@ -150,30 +102,30 @@ public class ExtractedClass implements Cloneable{
     }
 
 
-    public JSONObject getJson(Object object){
-        Object data = object;
+    public JSONObject getJsonFromObject(Object dataObject){
 
-        //use this.dataObject if object is null
-        if(data == null){
-            if(this.dataObject == null) {
-                return new JSONObject();
-            }
-            data = this.dataObject;
-        }else{
-            if(!object.getClass().getName().equals(this.name)){
-                throw new ClassCastException("Classes not match");
-            }
+        if(!dataObject.getClass().getName().equals(this.name)){
+            throw new ClassCastException("Class don't match to the given Class");
         }
 
         JSONObject jsonObject = new JSONObject();
         for(int i=0; i<fieldNames.length; i++){
             try {
-                Object tmpData = fields[i].get(data);
+                Object tmpData = fields[i].get(dataObject);
 
-                if(tmpData != null && tmpData instanceof String){
-                    jsonObject.put(fieldNames[i], fields[i].get(data).toString());
+                if(tmpData != null){
+                    if(fieldTypes[i].equals("java.lang.String")){
+                        jsonObject.put(fieldNames[i], fields[i].get(dataObject).toString());
+
+                    }else if(fieldTypes[i].equals("java.util.ArrayList")){
+
+                        //TODO handle ArrayList to json
+
+                    }else{
+                        // Type object reference
+                        //TODO object reference
+                    }
                 }
-                //TODO: add more types and handle Object reference
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -204,103 +156,99 @@ public class ExtractedClass implements Cloneable{
                         Log.e(TAG, "No JSONString found for " + fieldNames[i] + " in " + jsonObject.toString());
                     }
 
-                }else{
-                    // No Primitive -> Custom Class
+
+                }else if(fieldTypes[i].equals("java.util.ArrayList")){ // if arrayList class
 
                     ExtractedClass customClazz;
+                    JSONArray insideJsonArray = null;
 
-                    // if Arraylist Type   n -> n or 1 -> n
-                    if(fields[i].getType().getName().equals("java.util.ArrayList")){
 
-                        ParameterizedType pType = (ParameterizedType)fields[i].getGenericType();
+                    // get type inside of arraylist
+                    ParameterizedType pType = (ParameterizedType)fields[i].getGenericType();
+                    if(pType == null) {
+                        throw new NullPointerException("ArrayList Type Error.");
+                    }
 
-                        if(pType == null) {
-                            throw new NullPointerException("ArrayList Type Error.");
-                        }
+                    Type[] arrayListTypes = pType.getActualTypeArguments();
+                    if(arrayListTypes.length == 0){
+                        throw new ArrayIndexOutOfBoundsException("ArrayList length is 0.");
+                    }
 
-                        Type[] arrayListTypes = pType.getActualTypeArguments();
+                    Class<?> arrayListClazz = (Class<?>) arrayListTypes[0];
 
-                        if(arrayListTypes.length == 0){
-                            throw new ArrayIndexOutOfBoundsException("ArrayList length is 0.");
-                        }
+                    customClazz = EntityRegister.registerClass(arrayListClazz);
 
-                        Class<?> arrayListClazz = (Class<?>) arrayListTypes[0];
+                    if(customClazz == null){
+                        throw new NullPointerException("class is null but should not be null");
+                    }
 
-                        customClazz = EntityRegister.registerClass(arrayListClazz);
+                    // get all object inside of json
+                    try {
+                        insideJsonArray = jsonObject.getJSONArray(fieldNames[i]);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "No JSONArray found for " + fieldNames[i] + " in " + jsonObject.toString());
+                    }
 
-                        if(customClazz == null){
-                            throw new NullPointerException("class is null but should not be null");
-                        }
+                    //build new arraylist with data and set to object
+                    ArrayList<Object> buildedArrayList = new ArrayList<Object>();
 
-                        JSONArray insideJsonArray = null;
+                    if(insideJsonArray != null && insideJsonArray.length() > 0){
 
-                        try {
-                            insideJsonArray = jsonObject.getJSONArray(fieldNames[i]);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "No JSONArray found for " + fieldNames[i] + " in " + jsonObject.toString());
-                        }
+                        for (int j=0; j < insideJsonArray.length(); j++){
+                            JSONObject tmpJsonObject = insideJsonArray.optJSONObject(j);
 
-                        ArrayList<Object> buildedArrayList = new ArrayList<Object>();
-
-                        if(insideJsonArray != null && insideJsonArray.length() > 0){
-
-                            for (int j=0; j < insideJsonArray.length(); j++){
-                                JSONObject tmpJsonObject = insideJsonArray.optJSONObject(j);
-
-                                if(tmpJsonObject != null){
-                                    Object obj = customClazz.buildObjectFromJson(tmpJsonObject);
-                                    if(obj != null) {
-                                        buildedArrayList.add(obj);
-                                    }else{
-                                        Log.e(TAG, "Error render JSON for " + tmpJsonObject);
-                                    }
+                            if(tmpJsonObject != null){
+                                Object obj = customClazz.buildObjectFromJson(tmpJsonObject);
+                                if(obj != null) {
+                                    buildedArrayList.add(obj);
                                 }else{
-                                    Log.e(TAG, "JSONObject from JSONArray is null for " + j + ": " + insideJsonArray);
+                                    Log.e(TAG, "Error render JSON for " + tmpJsonObject);
                                 }
-
-                            }
-                        }
-
-                        fields[i].set(resultObject, buildedArrayList);
-
-                    }else{
-
-                        // normale Object  1 -> 1 or n -> 1
-
-
-                        customClazz = EntityRegister.getClass(fieldNames[i]);
-
-                        if(customClazz == null){
-
-                            customClazz = EntityRegister.registerClass(fields[i].getType());
-
-
-                            if(customClazz == null){
-                                throw new NullPointerException("class is null but should not be null");
-                            }
-                            JSONObject insideJsonObject = null;
-
-                            try {
-                                insideJsonObject = jsonObject.getJSONObject(fieldNames[i]);
-                            } catch (JSONException e) {
-                                Log.e(TAG, "No JSONValue found for " + fieldNames[i] + " in " + jsonObject.toString());
-                            }
-
-                            if(insideJsonObject != null && insideJsonObject.length() > 0){
-                                Object obj = customClazz.buildObjectFromJson(insideJsonObject);
-
-                                if(obj != null){
-                                    fields[i].set(resultObject, obj);
-
-                                }else{
-                                    Log.e(TAG, "Error create object for " + insideJsonObject.toString() + " in " + customClazz.toString());
-                                }
-
+                            }else{
+                                Log.e(TAG, "JSONObject from JSONArray is null for " + j + ": " + insideJsonArray);
                             }
 
                         }
                     }
 
+                    fields[i].set(resultObject, buildedArrayList);
+
+
+                }else{
+
+                    // normale Object  1 -> 1 or n -> 1
+
+                    ExtractedClass customClazz = EntityRegister.getClass(fieldNames[i]);
+
+                    if(customClazz == null){
+
+                        customClazz = EntityRegister.registerClass(fields[i].getType());
+
+
+                        if(customClazz == null){
+                            throw new NullPointerException("class is null but should not be null");
+                        }
+                        JSONObject insideJsonObject = null;
+
+                        try {
+                            insideJsonObject = jsonObject.getJSONObject(fieldNames[i]);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "No JSONValue found for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
+
+                        if(insideJsonObject != null && insideJsonObject.length() > 0){
+                            Object obj = customClazz.buildObjectFromJson(insideJsonObject);
+
+                            if(obj != null){
+                                fields[i].set(resultObject, obj);
+
+                            }else{
+                                Log.e(TAG, "Error create object for " + insideJsonObject.toString() + " in " + customClazz.toString());
+                            }
+
+                        }
+
+                    }
                 }
 
                 //TODO: add types
@@ -318,6 +266,35 @@ public class ExtractedClass implements Cloneable{
         }
 
         return null;
+    }
+
+
+    public boolean setValueToObject(String name, Object dataObject, Object value) {
+
+        if(dataObject.getClass().getName().equals(name)){
+            throw new ClassCastException("Class does not match to the given class");
+        }
+
+        if(dataObject != null && value != null && name != null){
+            for(int i=0; i<fieldNames.length; i++){
+                if(fieldNames[i] != null && fieldNames[i].equals(name)){
+
+                    try {
+                        fields[i].set(dataObject, value);
+
+                    } catch (IllegalArgumentException ex) {
+                        ex.printStackTrace();
+                        return false;
+                    } catch (IllegalAccessException ex) {
+                        ex.printStackTrace();
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }
