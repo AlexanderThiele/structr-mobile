@@ -3,10 +3,10 @@ package org.structr.mobile.client.listeners;
 /**
  * Created by alex.
  */
-public interface OnAsyncWriteListener<T> {
+public interface OnAsyncListener {
 
 
-    public abstract void onAsyncWriteComplete(T result);
+    public abstract void onAsyncComplete(Object result);
 
     public abstract void onAsyncError(String message);
 }

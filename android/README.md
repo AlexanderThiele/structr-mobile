@@ -16,8 +16,11 @@
 ###v0.1 (BETA)
 Released on 28 May 2014 
 
-* Get query implemented
-* Post query implemented
+* Read query implemented
+* Write query implemented
+* Delete query implemented
+* Add Credentials to all queries
+* Update existing data if id is available
 * Class-object mapping
 * Class extractor
 * Generated objects

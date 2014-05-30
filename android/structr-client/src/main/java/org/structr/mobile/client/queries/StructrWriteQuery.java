@@ -4,7 +4,7 @@ import android.util.Log;
 
 import org.json.JSONObject;
 import org.structr.mobile.client.StructrConnector;
-import org.structr.mobile.client.listeners.OnAsyncWriteListener;
+import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.PostTask;
 import org.structr.mobile.client.tasks.PutTask;
@@ -24,11 +24,11 @@ public class StructrWriteQuery {
     private Object dataObject;
 
 
-    public StructrWriteQuery (ExtractedClass extrC, Object obj){
+    public StructrWriteQuery (ExtractedClass extrC, Object dataObject){
         this.extrC = extrC;
-        this.dataObject = obj;
+        this.dataObject = dataObject;
 
-        jsonObject = extrC.getJsonFromObject(obj);
+        jsonObject = extrC.getJsonFromObject(dataObject);
 
         if(jsonObject.length() == 0){
             Log.e(TAG, "Error write Query. JsonObject is empty.");
@@ -42,15 +42,15 @@ public class StructrWriteQuery {
         }
     }
 
-    public void executeAsync(OnAsyncWriteListener asyncWriteListener){
+    public void executeAsync(OnAsyncListener asyncListener){
 
         if(action == WriteActions.CREATE_NEW) {
-            PostTask pt = new PostTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncWriteListener);
+            PostTask pt = new PostTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncListener);
             pt.execute();
 
         }else if(action == WriteActions.UPDATE_DATA){
 
-            PutTask pt = new PutTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncWriteListener);
+            PutTask pt = new PutTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, asyncListener);
             pt.execute();
         }
     }

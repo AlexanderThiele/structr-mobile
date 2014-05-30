@@ -51,6 +51,8 @@ result:
 Initialize the Client with your custom server URL. 
 
     StructrConnector.connect("structr.org:8082");
+    //or with credentials
+    StructrConnector.connect("structr.org:8082", "username", "password);
 
 ###The first query
 The Client provides several methods to interact with the Server. For a quick insight we want to get all whiskies stored in the database.

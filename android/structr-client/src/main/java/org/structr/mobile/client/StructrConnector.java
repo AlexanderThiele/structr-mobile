@@ -2,9 +2,9 @@ package org.structr.mobile.client;
 
 import android.net.Uri;
 
+import org.apache.http.client.methods.HttpRequestBase;
 import org.structr.mobile.client.queries.StructrDeleteQuery;
 import org.structr.mobile.client.queries.StructrGetQuery;
-import org.structr.mobile.client.queries.StructrUpdateQuery;
 import org.structr.mobile.client.queries.StructrWriteQuery;
 import org.structr.mobile.client.register.EntityRegister;
 import org.structr.mobile.client.register.objects.ExtractedClass;
@@ -17,6 +17,8 @@ public class StructrConnector {
     private static final String TAG = "StructrConnector";
 
     private static Uri uri;
+    private static String userName;
+    private static String password;
 
 
     public StructrConnector(){
@@ -24,7 +26,7 @@ public class StructrConnector {
 
     /**
      * Connects to the structr server with the given uri.
-     * @param uri
+     * @param uri server Uri
      */
     public static void connect(String uri){
         if(!uri.startsWith("http://"))
@@ -33,6 +35,28 @@ public class StructrConnector {
 
 
         //TODO: security, ping query, get api key, user statistics
+    }
+
+    /**
+     * connects to the structr server and adds credentials to all queries
+     * @param uri server Uri
+     * @param userName server username
+     * @param password username password
+     */
+    public static void connect(String uri, String userName, String password){
+        StructrConnector.connect(uri);
+        StructrConnector.userName = userName;
+        StructrConnector.password = password;
+    }
+
+    /**
+     * add credentials to all queries
+     * @param userName
+     * @param password
+     */
+    public static void addCredentials(String userName, String password){
+        StructrConnector.userName = userName;
+        StructrConnector.password = password;
     }
 
 
@@ -93,7 +117,7 @@ public class StructrConnector {
     }
 
     /**
-     * Not yet Supported
+     * simple write request if id is not null
      * @param object
      * @return
      */
@@ -109,7 +133,33 @@ public class StructrConnector {
      * @return
      */
     public static StructrDeleteQuery delete(Object object){
-        throw new UnsupportedOperationException("Not yet Supported");
+
+        ExtractedClass extrC = null;
+
+        try{
+            extrC = EntityRegister.registerClass(object.getClass());
+        }catch(NullPointerException ex){
+            ex.printStackTrace();
+        }
+
+        if(extrC != null){
+            StructrDeleteQuery swq = new StructrDeleteQuery(extrC, object);
+
+            return swq;
+        }
+
+        return null;
+    }
+
+    /**
+     * adds username and password to the request if available otherwise do nothing
+     * @param baseRequestBase current request
+     */
+    public static void addCredentialsToHeader(HttpRequestBase baseRequestBase){
+        if(userName != null && password != null){
+            baseRequestBase.addHeader("X-user", StructrConnector.userName);
+            baseRequestBase.addHeader("X-password", StructrConnector.password);
+        }
     }
 
     /**

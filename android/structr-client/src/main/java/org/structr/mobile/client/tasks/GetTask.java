@@ -1,7 +1,6 @@
 package org.structr.mobile.client.tasks;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -14,9 +13,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncGetListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
-import org.structr.mobile.client.util.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,14 +54,19 @@ public class GetTask extends BaseTask {
             }
         }
 
+        String uri = super.getUri() + queryString;
+
         HttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(uri);
         HttpResponse response;
         String responseString = null;
 
-        String uri = super.getUri() + queryString;
+
+        //add credentials to header if available
+        StructrConnector.addCredentialsToHeader(httpGet);
 
         try {
-            response = httpclient.execute(new HttpGet(uri));
+            response = httpclient.execute(httpGet);
             StatusLine statusLine = response.getStatusLine();
 
             // TODO: handle status requests f.e. 400 Bad Request.

@@ -8,10 +8,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONObject;
 import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
@@ -22,18 +20,18 @@ import java.io.UnsupportedEncodingException;
 /**
  * Created by alex.
  */
-public class PutTask extends BaseTask {
+public class DeleteTask extends BaseTask {
 
-    private final String TAG = "PutTask";
+    private final String TAG = "DeleteTask";
 
-    private JSONObject jsonObject;
+    private String id;
     private Object dataObject;
     private OnAsyncListener asyncListener;
 
 
-    public PutTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncListener asyncListener){
+    public DeleteTask(Uri baseUri, ExtractedClass extrC, String id, Object dataObject, OnAsyncListener asyncListener){
         super(baseUri, extrC);
-        this.jsonObject = data;
+        this.id = id;
         this.dataObject = dataObject;
 
         this.asyncListener = asyncListener;
@@ -43,10 +41,8 @@ public class PutTask extends BaseTask {
     @Override
     protected String doInBackground(String... strings) {
 
-        String id = jsonObject.optString("id");
-        if(id != null && id.length() > 0){
 
-            jsonObject.remove("id");
+        if(id != null && id.length() > 0){
 
             String uri = super.getUri()
                     + "/"
@@ -54,20 +50,15 @@ public class PutTask extends BaseTask {
                     ;
 
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPut httpPut = new HttpPut(uri);
+            HttpDelete httpDelete = new HttpDelete(uri);
             HttpResponse response;
 
-
             //add credentials to header if available
-            StructrConnector.addCredentialsToHeader(httpPut);
+            StructrConnector.addCredentialsToHeader(httpDelete);
 
             try{
-                StringEntity dataEntity = new StringEntity(jsonObject.toString());
 
-                httpPut.setEntity(dataEntity);
-                httpPut.addHeader("content-type", super.contentType);
-
-                response = httpclient.execute(httpPut);
+                response = httpclient.execute(httpDelete);
                 StatusLine statusLine = response.getStatusLine();
 
                 if(statusLine.getStatusCode() == HttpStatus.SC_OK){

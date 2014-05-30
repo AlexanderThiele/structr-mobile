@@ -1,29 +1,24 @@
 package org.structr.mobile.client.tasks;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.structr.mobile.client.listeners.OnAsyncWriteListener;
+import org.structr.mobile.client.StructrConnector;
+import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by alex.
@@ -35,14 +30,14 @@ public class PostTask extends BaseTask{
     private JSONObject jsonObject;
     private Object dataObject;
 
-    private OnAsyncWriteListener asyncWriteListener;
+    private OnAsyncListener asyncListener;
 
 
-    public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncWriteListener asyncWriteListener){
+    public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncListener asyncListener){
         super(baseUri, extrC);
         this.jsonObject = data;
         this.dataObject = dataObject;
-        this.asyncWriteListener = asyncWriteListener;
+        this.asyncListener = asyncListener;
 
     }
 
@@ -55,6 +50,9 @@ public class PostTask extends BaseTask{
         HttpPost httpPost = new HttpPost(uri);
         HttpResponse response;
         String responseString = null;
+
+        //add credentials to header if available
+        StructrConnector.addCredentialsToHeader(httpPost);
 
         try {
             StringEntity dataEntity = new StringEntity(jsonObject.toString());
@@ -70,15 +68,13 @@ public class PostTask extends BaseTask{
                 String[] splittedLocation = response.getFirstHeader("Location").getValue().split("/");
                 String id = splittedLocation[splittedLocation.length-1];
 
-                // location = http://structr.org:8082/structr/rest/Test/cad0df04b16143bf8b61824e1e21257e
-
                 responseString = id;
 
             }else{
                     //closes the connection
                     response.getEntity().getContent().close();
 
-                    asyncWriteListener.onAsyncError(statusLine.getReasonPhrase());
+                asyncListener.onAsyncError(statusLine.getReasonPhrase());
                     Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
 
                     return null;
@@ -86,13 +82,13 @@ public class PostTask extends BaseTask{
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            asyncWriteListener.onAsyncError(e.getMessage());
+            asyncListener.onAsyncError(e.getMessage());
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-            asyncWriteListener.onAsyncError(e.getMessage());
+            asyncListener.onAsyncError(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
-            asyncWriteListener.onAsyncError(e.getMessage());
+            asyncListener.onAsyncError(e.getMessage());
         }
 
         return responseString;
@@ -112,7 +108,7 @@ public class PostTask extends BaseTask{
                 Log.e(TAG, "ERROR SETTING ID TO OBJECT");
             }
 
-            asyncWriteListener.onAsyncWriteComplete(dataObject);
+            asyncListener.onAsyncComplete(dataObject);
 
             return;
 
@@ -121,6 +117,6 @@ public class PostTask extends BaseTask{
             Log.e(TAG, "JSONObject Error: put id to object");
         }
 
-        asyncWriteListener.onAsyncError("Error trying to generate object.");
+        asyncListener.onAsyncError("Error trying to generate object.");
     }
 }
