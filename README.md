@@ -104,7 +104,8 @@ The asyncListener is called with the final written object (with server generated
 * Server generated Api-keys for each connected device
 * User/Usage statistics
 * Mobile oauth (facebook, google, twitter...)
-* iOS support   
+* image/files upload & download
+* iOS support
 * Windows Phone support
 
 ------------

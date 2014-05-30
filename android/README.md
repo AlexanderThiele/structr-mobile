@@ -22,6 +22,7 @@ Released on 28 May 2014
 * Add Credentials to all queries
 * Update existing data if id is available
 * Class-object mapping
+* Map Objects id for each request
 * Class extractor
 * Generated objects
 * Generate ArrayList with custom objects

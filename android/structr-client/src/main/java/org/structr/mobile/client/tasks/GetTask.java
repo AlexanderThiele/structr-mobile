@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncGetListener;
+import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 
 import java.io.ByteArrayOutputStream;
@@ -132,6 +133,10 @@ public class GetTask extends BaseTask {
 
             }
 
+            //clear known objects
+            KnownObjects.clearObjects();
+
+            //call async Complete
             asyncGetListener.onAsyncGetComplete(resultList);
 
         } catch (JSONException e) {
