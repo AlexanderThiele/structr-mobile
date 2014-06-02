@@ -79,7 +79,9 @@ Thats it! Simple!
 ###Define your Query
 You don't want to query all whiskies everytime. So lets query for a Whisky with the name "Dalmore":
 
-    StructrConnector.read(Whisky.class,"name=Dalmore").executeAsync(asyncListener);
+    StructrConnector.read(Whisky.class)
+        .searchParams("name=Dalmore")
+        .executeAsync(asyncListener);
 
 You can add as many parameters as you want (seperated with ',').
 

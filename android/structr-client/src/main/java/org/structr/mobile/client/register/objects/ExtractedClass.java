@@ -161,19 +161,45 @@ public class ExtractedClass implements Cloneable{
             KnownObjects.putObject(id, resultObject);
 
 
-            for (int i=0; i < fields.length; i++){
+            for (int i=0; i < fields.length; i++) {
 
-                if(fieldTypes[i].equals("java.lang.String")){
+                // check nullField
+                if(jsonObject.isNull(fieldNames[i])){
+
+                    //do nothing
+                    Log.v(TAG, "JSONField is null: " + fieldNames[i]);
+
+                }else if (fieldTypes[i].equals("java.lang.String")) {
 
                     try {
                         String value = jsonObject.getString(fieldNames[i]);
-                        if(!value.equals("null"))
+                        if (!value.equals("null"))
                             fields[i].set(resultObject, value);
 
                     } catch (JSONException e) {
                         Log.e(TAG, "No JSONString found for " + fieldNames[i] + " in " + jsonObject.toString());
                     }
 
+
+                }else if(fieldTypes[i].equals("int")){
+
+                    try {
+                        int value = jsonObject.getInt(fieldNames[i]);
+                        fields[i].setInt(resultObject, value);
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "No JSONint found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                    }
+
+                }else if(fieldTypes[i].equals("double")){
+
+                    try {
+                        double value = jsonObject.getDouble(fieldNames[i]);
+                        fields[i].setDouble(resultObject, value);
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "No JSONDouble found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                    }
 
                 }else if(fieldTypes[i].equals("java.util.ArrayList")){ // if arrayList class
 
@@ -249,7 +275,9 @@ public class ExtractedClass implements Cloneable{
                         JSONObject insideJsonObject = null;
 
                         try {
+                            //get object
                             insideJsonObject = jsonObject.getJSONObject(fieldNames[i]);
+
                         } catch (JSONException e) {
                             Log.e(TAG, "No JSONValue found for " + fieldNames[i] + " in " + jsonObject.toString());
                         }

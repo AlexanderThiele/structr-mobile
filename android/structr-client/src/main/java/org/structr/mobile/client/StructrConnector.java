@@ -89,6 +89,8 @@ public class StructrConnector {
         return null;
     }
 
+
+
     /**
      * Connects to the structr server and writes new data. Choose between asynchron or synchron
      * request.

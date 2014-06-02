@@ -30,6 +30,7 @@ public class GetTask extends BaseTask {
     private final String TAG = "GetTask";
 
     private OnAsyncGetListener asyncGetListener;
+    private String id;
 
     public GetTask(Uri baseUri, ExtractedClass extrC, OnAsyncGetListener asyncGetListener){
 
@@ -42,16 +43,25 @@ public class GetTask extends BaseTask {
     protected String doInBackground(String... queryParams) {
 
         String queryString = "";
-        boolean firstElement = true;
 
-        if(queryParams != null && queryParams.length > 0){
-            for(String query : queryParams){
+        // search only for id if not null
+        if(id != null){
 
-                queryString += firstElement? "?" : "&";
-                queryString += query;
+            queryString = "/"+id;
 
-                if(firstElement)
-                    firstElement = false;
+        }else{ // else add all query params
+
+            boolean firstElement = true;
+
+            if(queryParams != null && queryParams.length > 0){
+                for(String query : queryParams){
+
+                    queryString += firstElement? "?" : "&";
+                    queryString += query;
+
+                    if(firstElement)
+                        firstElement = false;
+                }
             }
         }
 
@@ -116,18 +126,34 @@ public class GetTask extends BaseTask {
 
             if(resultSize > 0 ){
 
-                JSONArray dataArray = jsonObject.getJSONArray("result");
+                // first try to create Object if size == 1
+                boolean singleObjectCreated = false;
+                if(resultSize == 1){
+                    JSONObject tryObject = jsonObject.optJSONObject("result");
+                    if(tryObject != null){
+                        Object  buildedObject = extrC.buildObjectFromJson(tryObject);
 
-                for (int i=0; i < dataArray.length(); i++){
-                    JSONObject o = dataArray.getJSONObject(i);
+                        if(buildedObject != null){
+                            resultList.add(buildedObject);
+                            singleObjectCreated = true;
+                        }
+                    }
+                }
 
-                    Object  buildedObject = extrC.buildObjectFromJson(o);
+                if(!singleObjectCreated) {
+                    JSONArray dataArray = jsonObject.getJSONArray("result");
 
-                    if(buildedObject != null){
-                        resultList.add(buildedObject);
+                    for (int i = 0; i < dataArray.length(); i++) {
+                        JSONObject o = dataArray.getJSONObject(i);
 
-                    }else{
-                        Log.e(TAG, "failed build object from json. is null. " + i + ": " + o.toString());
+                        Object buildedObject = extrC.buildObjectFromJson(o);
+
+                        if (buildedObject != null) {
+                            resultList.add(buildedObject);
+
+                        } else {
+                            Log.e(TAG, "failed build object from json. is null. " + i + ": " + o.toString());
+                        }
                     }
                 }
 
@@ -142,6 +168,10 @@ public class GetTask extends BaseTask {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setIdSearch(String id){
+        this.id = id;
     }
 
 }
