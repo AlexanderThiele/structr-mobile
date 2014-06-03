@@ -119,6 +119,12 @@ public class ExtractedClass implements Cloneable{
                     if(fieldTypes[i].equals("java.lang.String")){
                         jsonObject.put(fieldNames[i], fields[i].get(dataObject).toString());
 
+                    }else if(fieldTypes[i].equals("int")) {
+                        jsonObject.put(fieldNames[i], fields[i].getInt(dataObject));
+
+                    }else if(fieldTypes[i].equals("double")) {
+                        jsonObject.put(fieldNames[i], fields[i].getDouble(dataObject));
+
                     }else if(fieldTypes[i].equals("java.util.ArrayList")){
 
                         //TODO handle ArrayList to json
