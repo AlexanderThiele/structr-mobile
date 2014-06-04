@@ -1,5 +1,7 @@
 package org.structr.mobile.client;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 
 import org.apache.http.client.methods.HttpRequestBase;
@@ -8,6 +10,7 @@ import org.structr.mobile.client.queries.StructrGetQuery;
 import org.structr.mobile.client.queries.StructrWriteQuery;
 import org.structr.mobile.client.register.EntityRegister;
 import org.structr.mobile.client.register.objects.ExtractedClass;
+import org.structr.mobile.client.util.MobileKey;
 
 /**
  * Created by alex.
@@ -15,6 +18,9 @@ import org.structr.mobile.client.register.objects.ExtractedClass;
 public class StructrConnector {
 
     private static final String TAG = "StructrConnector";
+
+    private static String mobileKeySharedPref = "org.structr.mobile.client";
+    private static String mobileKeySharedPrefKey = "org.structr.mobile.client.mobile.key";
 
     private static Uri uri;
     private static String userName;
@@ -33,7 +39,6 @@ public class StructrConnector {
             uri = "http://" + uri;
         StructrConnector.uri = Uri.parse(uri);
 
-
         //TODO: security, ping query, get api key, user statistics
     }
 
@@ -47,6 +52,30 @@ public class StructrConnector {
         StructrConnector.connect(uri);
         StructrConnector.userName = userName;
         StructrConnector.password = password;
+    }
+
+
+    /**
+     * will be soon implemented in connect(...)
+     */
+    public static void generateMobileKey(Context context){
+        final SharedPreferences prefs = context.getSharedPreferences(StructrConnector.mobileKeySharedPref,Context.MODE_PRIVATE);
+
+        String mobileKey = prefs.getString(StructrConnector.mobileKeySharedPrefKey, null);
+        if(mobileKey != null) {
+            MobileKey.setMobileKey(mobileKey);
+
+        }else{
+            // key does not exist. This needs to run in a thread
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MobileKey.generatePublicKey(prefs, StructrConnector.mobileKeySharedPrefKey);
+                }
+            });
+            t.run();
+
+        }
     }
 
     /**
