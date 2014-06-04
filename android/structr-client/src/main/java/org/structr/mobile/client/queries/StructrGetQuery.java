@@ -15,6 +15,7 @@ public class StructrGetQuery {
     private ExtractedClass getExtrC;
     private String[] query;
     private String id;
+    private String view;
 
 
     public StructrGetQuery(ExtractedClass extrC, String... query){
@@ -64,12 +65,30 @@ public class StructrGetQuery {
 
 
     /**
+     * sets the custom view which can be defined inside the schema editor.
+     * @param view
+     * @return
+     */
+    public StructrGetQuery setView(String view){
+
+        if(view != null && view.length() > 0){
+            this.view = view;
+        }
+
+        return this;
+    }
+
+
+    /**
      * Executes the Request Asynchronous.
      * @param asyncGetListener
      */
     public void executeAsync(OnAsyncGetListener asyncGetListener){
 
         GetTask getTask = new GetTask(StructrConnector.getUri(), getExtrC, asyncGetListener);
+        if(view != null && view.length() > 0){
+            getTask.setView(view);
+        }
         if(id != null){
             getTask.setIdSearch(id);
             getTask.execute();

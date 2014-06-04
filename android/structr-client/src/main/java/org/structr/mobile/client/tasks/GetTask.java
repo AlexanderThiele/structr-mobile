@@ -31,6 +31,7 @@ public class GetTask extends BaseTask {
 
     private OnAsyncGetListener asyncGetListener;
     private String id;
+    private String view;
 
     public GetTask(Uri baseUri, ExtractedClass extrC, OnAsyncGetListener asyncGetListener){
 
@@ -65,7 +66,9 @@ public class GetTask extends BaseTask {
             }
         }
 
-        String uri = super.getUri() + queryString;
+        String uri = super.getUri()
+                + (view != null? "/" + view : "")
+                + queryString;
 
         HttpClient httpclient = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(uri);
@@ -172,6 +175,10 @@ public class GetTask extends BaseTask {
 
     public void setIdSearch(String id){
         this.id = id;
+    }
+
+    public void setView(String view){
+        this.view = view;
     }
 
 }

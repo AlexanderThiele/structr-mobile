@@ -2,7 +2,7 @@
 
 Connect your mobile Application simple and secure to Structr - the Open Source Web Application Framework and CMS based on the popular Neo4j Graph Database.
 
-Generate your data schema in the UI and connect your mobile Application immediately and asynchronous to the Server.
+Generate your data schema with Structr and connect your mobile Application immediately and asynchronous to the Server.
 
 ### How it works (short overview)
 * Generate your schema with structr
@@ -93,7 +93,16 @@ Create your local object and write it to the server.
     StructrConnector.write(whisky).executeAsync(asyncListener);
 
 The asyncListener is called with the final written object (with server generated id).
-    
+
+
+###Add custom Views to your get requests
+Each node has its own view and by default, you only get the node id. Define your required view and add it to your schema node. To call the defined view just set the View to your get request (in this example the name of the view is "mobile").
+
+    StructrConnector.read(Whisky.class)
+        .setView("mobile")
+        .executeAsync(asyncListener);
+        
+        
 --------------
 
 #Whats next?
