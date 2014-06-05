@@ -131,7 +131,30 @@ public class ExtractedClass implements Cloneable{
 
                     }else{
                         // Type object reference
-                        //TODO object reference
+
+                        ExtractedClass extrC = EntityRegister.registerClass(tmpData.getClass());
+                        if(extrC != null){
+                            JSONObject innerJsonObject = extrC.getJsonFromObject(tmpData);
+
+
+                            if(innerJsonObject.toString().equals("{}")){
+                                Log.e(TAG, "JSONObject for " + tmpData.getClass() +" is empty");
+                            }else{
+
+                                if(!innerJsonObject.isNull("id")){
+                                    String innerId = innerJsonObject.optString("id");
+
+                                    // add clean object with only id value
+                                    JSONObject idJsonObject = new JSONObject("{id:" + innerId + "}");
+                                    jsonObject.put(fieldNames[i], idJsonObject);
+
+                                }else{
+                                    // TODO ID is null
+                                }
+
+                            }
+                        }
+
                     }
                 }
 
