@@ -19,6 +19,7 @@ import org.structr.mobile.client.register.objects.ExtractedClass;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 /**
  * Created by alex.
@@ -32,6 +33,8 @@ public class PostTask extends BaseTask{
 
     private OnAsyncListener asyncListener;
 
+    private ArrayList<Object> objectsToCreateFirst;
+
 
     public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncListener asyncListener){
         super(baseUri, extrC);
@@ -43,6 +46,14 @@ public class PostTask extends BaseTask{
 
     @Override
     protected String doInBackground(String... strings) {
+
+        // TODO check for inner objects and do syncRequests
+
+
+        return syncHttpRequest(strings);
+    }
+
+    public String syncHttpRequest(String... strings){
 
         String uri = super.getUri();
 
@@ -71,24 +82,29 @@ public class PostTask extends BaseTask{
                 responseString = id;
 
             }else{
-                    //closes the connection
-                    response.getEntity().getContent().close();
+                //closes the connection
+                response.getEntity().getContent().close();
 
-                asyncListener.onAsyncError(statusLine.getReasonPhrase());
-                    Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                if(asyncListener != null)
+                    asyncListener.onAsyncError(statusLine.getReasonPhrase());
 
-                    return null;
+                Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+
+                return null;
             }
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            asyncListener.onAsyncError(e.getMessage());
+            if(asyncListener != null)
+                asyncListener.onAsyncError(e.getMessage());
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-            asyncListener.onAsyncError(e.getMessage());
+            if(asyncListener != null)
+                asyncListener.onAsyncError(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
-            asyncListener.onAsyncError(e.getMessage());
+            if(asyncListener != null)
+                asyncListener.onAsyncError(e.getMessage());
         }
 
         return responseString;
@@ -101,22 +117,40 @@ public class PostTask extends BaseTask{
         if(result == null)
             return;
 
-        try {
-            jsonObject.put("id", result);
+        // add id to object
+        if(!addIdToObject(result)){
+            asyncListener.onAsyncError("Error trying to generate object.");
+        }
 
-            if(!extrC.setValueToObject("id",dataObject,result)){
+
+    }
+
+    public boolean addIdToObject(String id){
+        try {
+            jsonObject.put("id", id);
+
+            if(!extrC.setValueToObject("id", dataObject, id)){
                 Log.e(TAG, "ERROR SETTING ID TO OBJECT");
             }
 
-            asyncListener.onAsyncComplete(dataObject);
+            if(asyncListener != null)
+                asyncListener.onAsyncComplete(dataObject);
 
-            return;
+            return true;
 
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "JSONObject Error: put id to object");
         }
 
-        asyncListener.onAsyncError("Error trying to generate object.");
+        return false;
+    }
+
+    public Object getDataObject(){
+        return dataObject;
+    }
+
+    public JSONObject getJsonObject(){
+        return jsonObject;
     }
 }

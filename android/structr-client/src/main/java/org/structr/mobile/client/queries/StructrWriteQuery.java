@@ -55,8 +55,31 @@ public class StructrWriteQuery {
         }
     }
 
-    public Object executeSync(){
-        throw new UnsupportedOperationException();
+    /**
+     * Executes the request Synchronous! But beware: this request fails if you are on the main Thread.
+     *
+     * @param getJsonObject if true returns JSONObject instead of DataObject
+     * @return DataObject or JSONObject
+     */
+    public Object executeSync(boolean getJsonObject){
+
+        if(action == WriteActions.CREATE_NEW){
+            PostTask pt = new PostTask(StructrConnector.getUri(), extrC, jsonObject, dataObject, null);
+            String id = pt.syncHttpRequest();
+            if(id != null){
+                pt.addIdToObject(id);
+
+                if(getJsonObject){
+                    return  pt.getJsonObject();
+                }else{
+                    return pt.getDataObject();
+                }
+
+            }else{
+                Log.e(TAG, "Error generating sync ID");
+            }
+        }
+        return null;
     }
 
     // ENUM

@@ -149,7 +149,8 @@ public class ExtractedClass implements Cloneable{
                                     jsonObject.put(fieldNames[i], idJsonObject);
 
                                 }else{
-                                    // TODO ID is null
+                                    //if no id just add innerJsonObject
+                                    jsonObject.put(fieldNames[i], innerJsonObject);
                                 }
 
                             }
