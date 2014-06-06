@@ -14,6 +14,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by alex.
@@ -371,6 +372,52 @@ public class ExtractedClass implements Cloneable{
         }
 
         return false;
+    }
+
+    public Map<String, Object> getInnerObjectMapWithName(Object dataObject){
+        Map<String, Object> innerObjectMap = new HashMap<String,Object>(2);
+
+        for(int i=0; i < fieldTypes.length; i++){
+            if(!fieldTypes[i].startsWith("java")
+                    && !fieldTypes[i].equals("int")
+                    && !fieldTypes[i].equals("double")
+                    && !fieldTypes[i].equals("float")
+                    && !fieldTypes[i].equals("boolean")){
+
+                try {
+
+                    Object tmpData = fields[i].get(dataObject);
+
+                    if(tmpData != null){
+                        innerObjectMap.put(fieldNames[i], tmpData);
+                    }
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "ERROR get Object from Object");
+                }
+            }
+        }
+        return innerObjectMap.size()==0? null : innerObjectMap;
+    }
+
+    public String getIdFromObject(Object dataObject){
+        for (int i=0; i<fieldNames.length;i++){
+            if(fieldNames[i].equals("id")){
+
+                try {
+
+                    String id = (String)fields[i].get(dataObject);
+
+                    return id;
+
+                } catch (IllegalAccessException e) {
+                    Log.v(TAG, "getIdFromObject: ID is null");
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
 }

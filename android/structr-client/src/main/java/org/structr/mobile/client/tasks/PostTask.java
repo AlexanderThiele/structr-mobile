@@ -15,11 +15,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncListener;
+import org.structr.mobile.client.register.EntityRegister;
+import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by alex.
@@ -33,7 +37,7 @@ public class PostTask extends BaseTask{
 
     private OnAsyncListener asyncListener;
 
-    private ArrayList<Object> objectsToCreateFirst;
+    private Map<String, Object> objectsToCreateFirst;
 
 
     public PostTask(Uri baseUri, ExtractedClass extrC, JSONObject data, Object dataObject, OnAsyncListener asyncListener){
@@ -42,13 +46,63 @@ public class PostTask extends BaseTask{
         this.dataObject = dataObject;
         this.asyncListener = asyncListener;
 
+        Map<String, Object> innerObjectMap = extrC.getInnerObjectMapWithName(dataObject);
+
+        if(innerObjectMap != null){
+            for(String key : innerObjectMap.keySet()){
+
+                JSONObject tmpJsonObject = jsonObject.optJSONObject(key);
+                if(tmpJsonObject != null && !tmpJsonObject.toString().equals("{}")){
+                    String id = tmpJsonObject.optString("id");
+                    if(id == null || id.length() == 0){
+                        if(objectsToCreateFirst == null){
+                            objectsToCreateFirst = new HashMap<String, Object>(2);
+                        }
+                        objectsToCreateFirst.put(key,innerObjectMap.get(key));
+                    }
+                }
+            }
+        }
     }
 
     @Override
     protected String doInBackground(String... strings) {
 
-        // TODO check for inner objects and do syncRequests
+        //first create all objects which have no ids
+        if(objectsToCreateFirst != null && objectsToCreateFirst.size() > 0){
+            for (String key : objectsToCreateFirst.keySet()){
 
+                JSONObject innerJsonObject = jsonObject.optJSONObject(key);
+                if(innerJsonObject != null && !innerJsonObject.toString().equals("{}")){
+
+                    jsonObject.remove(key);
+
+                    ExtractedClass innerExtrC = EntityRegister.registerClass(objectsToCreateFirst.get(key).getClass());
+
+                    PostTask syncPostTask = new PostTask(baseUri, innerExtrC, innerJsonObject, objectsToCreateFirst.get(key), null);
+
+                    String id = syncPostTask.syncHttpRequest();
+                    if(id != null){
+                        try {
+                            //set id reference
+                            JSONObject idObject = new JSONObject("{id:" + id + "}");
+                            jsonObject.put(key,idObject);
+
+                            //set value to the object
+                            innerExtrC.setValueToObject("id",objectsToCreateFirst.get(key),id);
+
+                            // adding object to the first object.
+                            if(!extrC.setValueToObject(key, dataObject, objectsToCreateFirst.get(key))){
+                                Log.e(TAG, "ERROR ADDING INNER OBJECT");
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
 
         return syncHttpRequest(strings);
     }

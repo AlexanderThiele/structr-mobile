@@ -2,6 +2,7 @@ package org.structr.mobile.client.queries;
 
 import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncGetListener;
+import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.GetTask;
 
@@ -84,6 +85,8 @@ public class StructrGetQuery {
      * @param asyncGetListener
      */
     public void executeAsync(OnAsyncGetListener asyncGetListener){
+
+        KnownObjects.clearObjects();
 
         GetTask getTask = new GetTask(StructrConnector.getUri(), getExtrC, asyncGetListener);
         if(view != null && view.length() > 0){
