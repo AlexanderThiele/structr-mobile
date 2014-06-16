@@ -1,3 +1,5 @@
 #Android Samples
 
-* comming soon
+Application uses this client
+
+* Beer Graph
