@@ -1,5 +1,5 @@
 #Android Client
-* Current version 0.1 (BETA)
+* Current version 0.1.1 (BETA)
 
 ##How to implement
 
@@ -12,6 +12,11 @@
 ------
 
 ##Version Changes
+
+###v0.1 (BETA)
+Release on 24 June 2014
+
+* fixed a bug that stores the known object with depth >= 2
 
 ###v0.1 (BETA)
 Released on 28 May 2014 

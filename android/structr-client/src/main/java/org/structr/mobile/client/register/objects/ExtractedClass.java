@@ -23,6 +23,9 @@ public class ExtractedClass implements Cloneable{
 
     private final String TAG ="ExtractedClass";
 
+    private static int saveObjectToDepth = 1;
+    private static int objectDepth = -1;
+
     private String name;
     private Class<?> clazz;
 
@@ -126,6 +129,9 @@ public class ExtractedClass implements Cloneable{
                     }else if(fieldTypes[i].equals("double")) {
                         jsonObject.put(fieldNames[i], fields[i].getDouble(dataObject));
 
+                    }else if(fieldTypes[i].equals("boolean")) {
+                        jsonObject.put(fieldNames[i], fields[i].getBoolean(dataObject));
+
                     }else if(fieldTypes[i].equals("java.util.ArrayList")){
 
                         //TODO handle ArrayList to json
@@ -175,12 +181,14 @@ public class ExtractedClass implements Cloneable{
         try {
 
             Object resultObject;
+            objectDepth++;
 
             //if object is already known
             String id = jsonObject.optString("id", null);
             if(id != null){
                 if(KnownObjects.isKnown(id)){
                     resultObject = KnownObjects.getObject(id);
+                    objectDepth--;
                     return resultObject;
                 }
             }
@@ -189,7 +197,9 @@ public class ExtractedClass implements Cloneable{
             resultObject = clazz.getConstructors()[0].newInstance();
 
             //put to known objects map
-            KnownObjects.putObject(id, resultObject);
+            if(objectDepth <= saveObjectToDepth) {
+                KnownObjects.putObject(id, resultObject);
+            }
 
 
             for (int i=0; i < fields.length; i++) {
@@ -230,6 +240,16 @@ public class ExtractedClass implements Cloneable{
 
                     } catch (JSONException e) {
                         Log.e(TAG, "No JSONDouble found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                    }
+
+                }else if(fieldTypes[i].equals("boolean")) {
+
+                    try {
+                        boolean value = jsonObject.getBoolean(fieldNames[i]);
+                        fields[i].setBoolean(resultObject, value);
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "No JSONBoolean found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
                     }
 
                 }else if(fieldTypes[i].equals("java.util.ArrayList")){ // if arrayList class
@@ -332,6 +352,8 @@ public class ExtractedClass implements Cloneable{
                 //TODO: handle array[]
             }
 
+            objectDepth--;
+
             return resultObject;
 
         } catch (InstantiationException e) {
@@ -342,6 +364,7 @@ public class ExtractedClass implements Cloneable{
             e.printStackTrace();
         }
 
+        objectDepth--;
         return null;
     }
 
