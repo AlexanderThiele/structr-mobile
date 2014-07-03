@@ -3,6 +3,7 @@ package org.structr.mobile.client.tasks;
 import android.net.Uri;
 import android.util.Log;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -20,6 +21,7 @@ import org.structr.mobile.client.register.objects.ExtractedClass;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
@@ -86,7 +88,8 @@ public class GetTask extends BaseTask {
             // TODO: handle status requests f.e. 400 Bad Request.
             if(statusLine.getStatusCode() == HttpStatus.SC_OK){
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                response.getEntity().writeTo(out);
+                HttpEntity responseEntity = response.getEntity();
+                responseEntity.writeTo(out);
                 out.close();
                 responseString = out.toString();
 

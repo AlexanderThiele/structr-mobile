@@ -6,6 +6,9 @@ import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.GetTask;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 /**
  * Created by alex.
  */
@@ -17,6 +20,8 @@ public class StructrGetQuery {
     private String[] query;
     private String id;
     private String view;
+    private int page;
+    private int pageSize;
 
 
     public StructrGetQuery(ExtractedClass extrC, String... query){
@@ -55,8 +60,15 @@ public class StructrGetQuery {
         }
 
         for(String s : queries){
-            newQueryArray[counter] = s;
-            counter++;
+            try {
+                String[] split = s.split("=");
+                if(split.length == 2) {
+                    newQueryArray[counter] = split[0] + "=" + URLEncoder.encode(split[1], "UTF-8");
+                    counter++;
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         query = newQueryArray;
@@ -81,6 +93,24 @@ public class StructrGetQuery {
 
 
     /**
+     * Sets the page and page size for the request.
+     * F.e.: page=1 & pageSize=10 : The Server now returns the first 10 entries.
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    public StructrGetQuery setPageSize(int page, int pageSize){
+
+        if(page > 0 && pageSize > 0){
+            this.page = page;
+            this.pageSize = pageSize;
+        }
+
+        return this;
+    }
+
+
+    /**
      * Executes the Request Asynchronous.
      * @param asyncGetListener
      */
@@ -89,6 +119,11 @@ public class StructrGetQuery {
         KnownObjects.clearObjects();
 
         GetTask getTask = new GetTask(StructrConnector.getUri(), getExtrC, asyncGetListener);
+
+        if(page > 0 && pageSize > 0){
+            this.searchParams(new String[]{"page=" + page,"pageSize=" + pageSize});
+        }
+
         if(view != null && view.length() > 0){
             getTask.setView(view);
         }
