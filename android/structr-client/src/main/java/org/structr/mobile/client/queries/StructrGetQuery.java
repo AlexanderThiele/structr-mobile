@@ -22,6 +22,8 @@ public class StructrGetQuery {
     private String view;
     private int page;
     private int pageSize;
+    private String sort;
+    private String sortOrder;
 
 
     public StructrGetQuery(ExtractedClass extrC, String... query){
@@ -109,6 +111,20 @@ public class StructrGetQuery {
         return this;
     }
 
+    /**
+     * sort the result in this query. sortOrder can be asc or desc
+     * @param parameter
+     * @param sortOrder
+     * @return
+     */
+    public StructrGetQuery sortResult(String parameter, String sortOrder){
+
+        this.sort = parameter;
+        this.sortOrder = sortOrder;
+
+        return this;
+    }
+
 
     /**
      * Executes the Request Asynchronous.
@@ -122,6 +138,10 @@ public class StructrGetQuery {
 
         if(page > 0 && pageSize > 0){
             this.searchParams(new String[]{"page=" + page,"pageSize=" + pageSize});
+        }
+        if(sort != null && sort.length() > 0
+                && sortOrder != null && sortOrder.length() > 0){
+            this.searchParams(new String[]{"sort=" + sort, "order=" + sortOrder});
         }
 
         if(view != null && view.length() > 0){
