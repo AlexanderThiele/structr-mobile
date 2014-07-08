@@ -13,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
+import org.structr.mobile.client.util.Constants;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -70,7 +71,9 @@ public class DeleteTask extends BaseTask {
                     response.getEntity().getContent().close();
 
                     asyncListener.onAsyncError(statusLine.getReasonPhrase());
-                    Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                    if(Constants.isLogging) {
+                        Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                    }
 
                     return null;
                 }

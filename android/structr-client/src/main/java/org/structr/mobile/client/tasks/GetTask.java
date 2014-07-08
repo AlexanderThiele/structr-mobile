@@ -18,6 +18,7 @@ import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncGetListener;
 import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
+import org.structr.mobile.client.util.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,7 +99,9 @@ public class GetTask extends BaseTask {
                 response.getEntity().getContent().close();
 
                 asyncGetListener.onAsyncError(statusLine.getReasonPhrase());
-                Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " +statusLine.getReasonPhrase());
+                if(Constants.isLogging) {
+                    Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                }
 
                 return null;
                 //throw new IOException(statusLine.getReasonPhrase());
@@ -158,7 +161,9 @@ public class GetTask extends BaseTask {
                             resultList.add(buildedObject);
 
                         } else {
-                            Log.e(TAG, "failed build object from json. is null. " + i + ": " + o.toString());
+                            if(Constants.isLogging) {
+                                Log.e(TAG, "failed build object from json. is null. " + i + ": " + o.toString());
+                            }
                         }
                     }
                 }

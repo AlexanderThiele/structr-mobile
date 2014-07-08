@@ -7,6 +7,7 @@ import org.structr.mobile.client.StructrConnector;
 import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.DeleteTask;
+import org.structr.mobile.client.util.Constants;
 
 /**
  * Created by alex.
@@ -27,7 +28,9 @@ public class StructrDeleteQuery {
         JSONObject jsonObject = extrC.getJsonFromObject(dataObject);
 
         if(jsonObject.length() == 0){
-            Log.e(TAG, "Error write Query. JsonObject is empty.");
+            if(Constants.isLogging) {
+                Log.e(TAG, "Error write Query. JsonObject is empty.");
+            }
             throw new NullPointerException("Cannot create Json from Object");
         }
 

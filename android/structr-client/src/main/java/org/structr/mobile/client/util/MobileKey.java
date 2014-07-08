@@ -95,7 +95,9 @@ public class MobileKey {
                     //closes the connection
                     response.getEntity().getContent().close();
 
-                    Log.e(TAG, "Error generate Mobile Key: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                    if(Constants.isLogging) {
+                        Log.e(TAG, "Error generate Mobile Key: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                    }
                 }
 
             } catch (UnsupportedEncodingException e) {

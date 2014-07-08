@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.structr.mobile.client.register.EntityRegister;
 import org.structr.mobile.client.register.KnownObjects;
+import org.structr.mobile.client.util.Constants;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -145,7 +146,9 @@ public class ExtractedClass implements Cloneable{
 
 
                             if(innerJsonObject.toString().equals("{}")){
-                                Log.e(TAG, "JSONObject for " + tmpData.getClass() +" is empty");
+                                if(Constants.isLogging) {
+                                    Log.e(TAG, "JSONObject for " + tmpData.getClass() + " is empty");
+                                }
                             }else{
 
                                 if(!innerJsonObject.isNull("id")){
@@ -208,7 +211,9 @@ public class ExtractedClass implements Cloneable{
                 if(jsonObject.isNull(fieldNames[i])){
 
                     //do nothing
-                    Log.v(TAG, "JSONField is null: " + fieldNames[i]);
+                    if(Constants.isLogging) {
+                        Log.v(TAG, "JSONField is null: " + fieldNames[i]);
+                    }
 
                 }else if (fieldTypes[i].equals("java.lang.String")) {
 
@@ -218,7 +223,9 @@ public class ExtractedClass implements Cloneable{
                             fields[i].set(resultObject, value);
 
                     } catch (JSONException e) {
-                        Log.e(TAG, "No JSONString found for " + fieldNames[i] + " in " + jsonObject.toString());
+                        if(Constants.isLogging) {
+                            Log.e(TAG, "No JSONString found for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
                     }
 
 
@@ -229,7 +236,9 @@ public class ExtractedClass implements Cloneable{
                         fields[i].setInt(resultObject, value);
 
                     } catch (JSONException e) {
-                        Log.e(TAG, "No JSONint found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        if(Constants.isLogging) {
+                            Log.e(TAG, "No JSONint found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
                     }
 
                 }else if(fieldTypes[i].equals("double")){
@@ -239,7 +248,9 @@ public class ExtractedClass implements Cloneable{
                         fields[i].setDouble(resultObject, value);
 
                     } catch (JSONException e) {
-                        Log.e(TAG, "No JSONDouble found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        if(Constants.isLogging) {
+                            Log.e(TAG, "No JSONDouble found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
                     }
 
                 }else if(fieldTypes[i].equals("boolean")) {
@@ -249,7 +260,9 @@ public class ExtractedClass implements Cloneable{
                         fields[i].setBoolean(resultObject, value);
 
                     } catch (JSONException e) {
-                        Log.e(TAG, "No JSONBoolean found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        if(Constants.isLogging) {
+                            Log.e(TAG, "No JSONBoolean found or is not compatible for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
                     }
 
                 }else if(fieldTypes[i].equals("java.util.ArrayList")){ // if arrayList class
@@ -281,7 +294,9 @@ public class ExtractedClass implements Cloneable{
                     try {
                         insideJsonArray = jsonObject.getJSONArray(fieldNames[i]);
                     } catch (JSONException e) {
-                        Log.e(TAG, "No JSONArray found for " + fieldNames[i] + " in " + jsonObject.toString());
+                        if(Constants.isLogging) {
+                            Log.e(TAG, "No JSONArray found for " + fieldNames[i] + " in " + jsonObject.toString());
+                        }
                     }
 
                     //build new arraylist with data and set to object
@@ -297,10 +312,14 @@ public class ExtractedClass implements Cloneable{
                                 if(obj != null) {
                                     buildedArrayList.add(obj);
                                 }else{
-                                    Log.e(TAG, "Error render JSON for " + tmpJsonObject);
+                                    if(Constants.isLogging) {
+                                        Log.e(TAG, "Error render JSON for " + tmpJsonObject);
+                                    }
                                 }
                             }else{
-                                Log.e(TAG, "JSONObject from JSONArray is null for " + j + ": " + insideJsonArray);
+                                if(Constants.isLogging) {
+                                    Log.e(TAG, "JSONObject from JSONArray is null for " + j + ": " + insideJsonArray);
+                                }
                             }
 
                         }
@@ -330,7 +349,9 @@ public class ExtractedClass implements Cloneable{
                             insideJsonObject = jsonObject.getJSONObject(fieldNames[i]);
 
                         } catch (JSONException e) {
-                            Log.e(TAG, "No JSONValue found for " + fieldNames[i] + " in " + jsonObject.toString());
+                            if(Constants.isLogging) {
+                                Log.e(TAG, "No JSONValue found for " + fieldNames[i] + " in " + jsonObject.toString());
+                            }
                         }
 
                         if(insideJsonObject != null && insideJsonObject.length() > 0){
@@ -340,7 +361,9 @@ public class ExtractedClass implements Cloneable{
                                 fields[i].set(resultObject, obj);
 
                             }else{
-                                Log.e(TAG, "Error create object for " + insideJsonObject.toString() + " in " + customClazz.toString());
+                                if(Constants.isLogging) {
+                                    Log.e(TAG, "Error create object for " + insideJsonObject.toString() + " in " + customClazz.toString());
+                                }
                             }
 
                         }
@@ -417,7 +440,9 @@ public class ExtractedClass implements Cloneable{
 
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "ERROR get Object from Object");
+                    if(Constants.isLogging) {
+                        Log.e(TAG, "ERROR get Object from Object");
+                    }
                 }
             }
         }
@@ -435,7 +460,9 @@ public class ExtractedClass implements Cloneable{
                     return id;
 
                 } catch (IllegalAccessException e) {
-                    Log.v(TAG, "getIdFromObject: ID is null");
+                    if(Constants.isLogging) {
+                        Log.v(TAG, "getIdFromObject: ID is null");
+                    }
                     return null;
                 }
             }

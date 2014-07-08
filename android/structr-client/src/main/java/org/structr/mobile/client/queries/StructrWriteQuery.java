@@ -8,6 +8,7 @@ import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.objects.ExtractedClass;
 import org.structr.mobile.client.tasks.PostTask;
 import org.structr.mobile.client.tasks.PutTask;
+import org.structr.mobile.client.util.Constants;
 
 /**
  * Created by alex.
@@ -31,7 +32,9 @@ public class StructrWriteQuery {
         jsonObject = extrC.getJsonFromObject(dataObject);
 
         if(jsonObject.length() == 0){
-            Log.e(TAG, "Error write Query. JsonObject is empty.");
+            if(Constants.isLogging) {
+                Log.e(TAG, "Error write Query. JsonObject is empty.");
+            }
             throw new NullPointerException("Cannot create Json from Object");
         }
 
@@ -76,7 +79,9 @@ public class StructrWriteQuery {
                 }
 
             }else{
-                Log.e(TAG, "Error generating sync ID");
+                if(Constants.isLogging) {
+                    Log.e(TAG, "Error generating sync ID");
+                }
             }
         }
         return null;

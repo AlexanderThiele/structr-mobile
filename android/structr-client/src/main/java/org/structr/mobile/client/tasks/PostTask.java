@@ -18,6 +18,7 @@ import org.structr.mobile.client.listeners.OnAsyncListener;
 import org.structr.mobile.client.register.EntityRegister;
 import org.structr.mobile.client.register.KnownObjects;
 import org.structr.mobile.client.register.objects.ExtractedClass;
+import org.structr.mobile.client.util.Constants;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -93,7 +94,9 @@ public class PostTask extends BaseTask{
 
                             // adding object to the first object.
                             if(!extrC.setValueToObject(key, dataObject, objectsToCreateFirst.get(key))){
-                                Log.e(TAG, "ERROR ADDING INNER OBJECT");
+                                if(Constants.isLogging) {
+                                    Log.e(TAG, "ERROR ADDING INNER OBJECT");
+                                }
                             }
 
                         } catch (JSONException e) {
@@ -142,7 +145,9 @@ public class PostTask extends BaseTask{
                 if(asyncListener != null)
                     asyncListener.onAsyncError(statusLine.getReasonPhrase());
 
-                Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                if(Constants.isLogging) {
+                    Log.e(TAG, "AsyncTask Error: " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                }
 
                 return null;
             }
@@ -184,7 +189,9 @@ public class PostTask extends BaseTask{
             jsonObject.put("id", id);
 
             if(!extrC.setValueToObject("id", dataObject, id)){
-                Log.e(TAG, "ERROR SETTING ID TO OBJECT");
+                if(Constants.isLogging) {
+                    Log.e(TAG, "ERROR SETTING ID TO OBJECT");
+                }
             }
 
             if(asyncListener != null)
@@ -194,7 +201,9 @@ public class PostTask extends BaseTask{
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e(TAG, "JSONObject Error: put id to object");
+            if(Constants.isLogging) {
+                Log.e(TAG, "JSONObject Error: put id to object");
+            }
         }
 
         return false;

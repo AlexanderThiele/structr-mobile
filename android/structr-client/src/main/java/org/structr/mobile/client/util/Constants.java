@@ -10,4 +10,6 @@ public class Constants {
     public static String getRestUri(){
         return restUri;
     }
+
+    public static boolean isLogging = false;
 }

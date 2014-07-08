@@ -10,6 +10,7 @@ import org.structr.mobile.client.queries.StructrGetQuery;
 import org.structr.mobile.client.queries.StructrWriteQuery;
 import org.structr.mobile.client.register.EntityRegister;
 import org.structr.mobile.client.register.objects.ExtractedClass;
+import org.structr.mobile.client.util.Constants;
 import org.structr.mobile.client.util.MobileKey;
 
 /**
@@ -199,6 +200,14 @@ public class StructrConnector {
      */
     public static Uri getUri(){
         return StructrConnector.uri;
+    }
+
+    /**
+     * Enables Logging. Default is false.
+     * @param isLogging true to enable logging
+     */
+    public static void setLogging(boolean isLogging){
+        Constants.isLogging = isLogging;
     }
 
 }
