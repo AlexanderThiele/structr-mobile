@@ -24,6 +24,7 @@ public class StructrGetQuery {
     private int pageSize;
     private String sort;
     private String sortOrder;
+    private boolean inexactSearch;
 
 
     public StructrGetQuery(ExtractedClass extrC, String... query){
@@ -97,14 +98,14 @@ public class StructrGetQuery {
     /**
      * Sets the page and page size for the request.
      * F.e.: page=1 & pageSize=10 : The Server now returns the first 10 entries.
-     * @param page
+     * @param currentPage
      * @param pageSize
      * @return
      */
-    public StructrGetQuery setPageSize(int page, int pageSize){
+    public StructrGetQuery setPageSize(int currentPage, int pageSize){
 
         if(page > 0 && pageSize > 0){
-            this.page = page;
+            this.page = currentPage;
             this.pageSize = pageSize;
         }
 
@@ -125,6 +126,15 @@ public class StructrGetQuery {
         return this;
     }
 
+    /**
+     * sets the inexactsearch to true - this is the same behavior as set the search params to loose=1
+     * @return
+     */
+    public StructrGetQuery setInexactSearch(){
+        this.inexactSearch = true;
+        return this;
+    }
+
 
     /**
      * Executes the Request Asynchronous.
@@ -142,6 +152,9 @@ public class StructrGetQuery {
         if(sort != null && sort.length() > 0
                 && sortOrder != null && sortOrder.length() > 0){
             this.searchParams(new String[]{"sort=" + sort, "order=" + sortOrder});
+        }
+        if(inexactSearch){
+            this.searchParams("loose=1");
         }
 
         if(view != null && view.length() > 0){
