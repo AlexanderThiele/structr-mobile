@@ -79,6 +79,32 @@ public class StructrGetQuery {
         return this;
     }
 
+    /**
+     * search with range parameters (f.e. latitude=[49 TO 50])
+     * @param parameter to search
+     * @param from value
+     * @param to value
+     * @return
+     */
+    public StructrGetQuery searchFromTo(String parameter, double from, double to){
+
+        this.searchParams(parameter +  "=[ " + from + " TO " + to + "]");
+        return this;
+    }
+
+    /**
+     * search with range parameters (f.e. latitude=[49 TO 50])
+     * @param parameter to search
+     * @param from value
+     * @param to value
+     * @return
+     */
+    public StructrGetQuery searchFromTo(String parameter, int from, int to){
+
+        this.searchParams(parameter +  "=[ " + from + " TO " + to + "]");
+        return this;
+    }
+
 
     /**
      * sets the custom view which can be defined inside the schema editor.
