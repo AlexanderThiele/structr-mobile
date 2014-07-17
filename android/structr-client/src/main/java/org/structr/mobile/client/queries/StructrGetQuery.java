@@ -130,7 +130,7 @@ public class StructrGetQuery {
      */
     public StructrGetQuery setPageSize(int currentPage, int pageSize){
 
-        if(page > 0 && pageSize > 0){
+        if(currentPage > 0 && pageSize > 0){
             this.page = currentPage;
             this.pageSize = pageSize;
         }
