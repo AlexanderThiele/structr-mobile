@@ -210,4 +210,12 @@ public class StructrConnector {
         Constants.isLogging = isLogging;
     }
 
+
+    public static String getUserName() {
+        return userName;
+    }
+
+    public static String getPassword() {
+        return password;
+    }
 }
